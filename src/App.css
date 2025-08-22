@@ -614,7 +614,7 @@
           height: 3px;
           background: white;
           border-radius: 50%;
-          animation: searchingDots 1.4s infinite ease-in-out;
+          /* No animation */
         }
 
         .searching-animation .dot:nth-child(1) {
