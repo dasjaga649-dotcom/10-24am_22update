@@ -1225,7 +1225,7 @@ const BotMessage: React.FC<{
         {/* Main Answer with Typewriter Effect */}
         {message.text && (
           <div className="p-4 rounded-xl prose text-gray-800 chat-message-content">
-            {isWelcomeMessage ? (
+            {isWelcomeMessage || isOldMessage ? (
               <div dangerouslySetInnerHTML={{ __html: processedHTML }} />
             ) : (
               <TypewriterContent
