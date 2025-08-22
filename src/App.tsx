@@ -1108,47 +1108,145 @@ const MessageActions: React.FC<{
   );
 };
 
+// Typewriter component for streaming text word by word
+const TypewriterContent: React.FC<{
+  content: string;
+  speed?: number;
+  onComplete?: () => void;
+}> = ({ content, speed = 50, onComplete }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    if (!content) return;
+
+    // Parse HTML content to extract words while preserving structure
+    const parseHTMLToWords = (html: string) => {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+
+      const words: Array<{word: string, isHTML: boolean}> = [];
+
+      const extractWords = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent || '';
+          const textWords = text.split(/(\s+)/).filter(w => w.length > 0);
+          textWords.forEach(word => {
+            words.push({ word, isHTML: false });
+          });
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node as Element;
+          const tagName = element.tagName.toLowerCase();
+
+          // Add opening tag
+          words.push({
+            word: `<${tagName}${Array.from(element.attributes).map(attr => ` ${attr.name}="${attr.value}"`).join('')}>`,
+            isHTML: true
+          });
+
+          // Process children
+          Array.from(node.childNodes).forEach(extractWords);
+
+          // Add closing tag
+          words.push({ word: `</${tagName}>`, isHTML: true });
+        }
+      };
+
+      Array.from(tempDiv.childNodes).forEach(extractWords);
+      return words;
+    };
+
+    const words = parseHTMLToWords(content);
+    let currentIndex = 0;
+
+    const timer = setInterval(() => {
+      if (currentIndex < words.length) {
+        setDisplayedContent(prev => prev + words[currentIndex].word);
+        currentIndex++;
+      } else {
+        clearInterval(timer);
+        setIsComplete(true);
+        onComplete?.();
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [content, speed, onComplete]);
+
+  return (
+    <div
+      className="typewriter-content"
+      dangerouslySetInnerHTML={{ __html: displayedContent }}
+    />
+  );
+};
+
 const BotMessage: React.FC<{
   message: Message;
   onSuggestionClick: (suggestion: string) => void;
 }> = ({ message, onSuggestionClick }) => {
   const response = message.response;
   const isWelcomeMessage = message.id === 1 && message.text === "Hello! I am your AI partner, Husqy. How can I help you today?";
+  const [showAdditionalContent, setShowAdditionalContent] = useState(isWelcomeMessage);
+
+  const handleTypewriterComplete = () => {
+    setShowAdditionalContent(true);
+  };
+
+  const processedHTML = message.text ?
+    marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string
+    : '';
 
   return (
     <div className="flex items-start justify-center">
       <div className="max-w-3xl w-full">
 
-        {/* Related Content Card Carousel */}
-        {response?.related_content && response.related_content.length > 0 && (
+        {/* Related Content Card Carousel - Show immediately for welcome message */}
+        {isWelcomeMessage && response?.related_content && response.related_content.length > 0 && (
           <RelatedContentCarousel items={response.related_content} />
         )}
 
-        {/* Main Answer */}
+        {/* Main Answer with Typewriter Effect */}
         {message.text && (
           <div className="p-4 rounded-xl prose text-gray-800 chat-message-content">
-            <div dangerouslySetInnerHTML={{
-              __html: marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string
-            }} />
+            {isWelcomeMessage ? (
+              <div dangerouslySetInnerHTML={{ __html: processedHTML }} />
+            ) : (
+              <TypewriterContent
+                content={processedHTML}
+                speed={30}
+                onComplete={handleTypewriterComplete}
+              />
+            )}
           </div>
         )}
 
-        {/* Action Buttons - Hide for welcome message */}
-        {message.text && !isWelcomeMessage && (
-          <MessageActions message={message} />
-        )}
+        {/* Additional Content - Show after typewriter completes */}
+        {showAdditionalContent && (
+          <>
+            {/* Related Content Card Carousel - Show after typewriter for non-welcome messages */}
+            {!isWelcomeMessage && response?.related_content && response.related_content.length > 0 && (
+              <RelatedContentCarousel items={response.related_content} />
+            )}
 
-        {/* File Links */}
-        {response?.file_links && response.file_links.length > 0 && (
-          <FileLinksSection files={response.file_links} />
-        )}
+            {/* Action Buttons - Hide for welcome message */}
+            {message.text && !isWelcomeMessage && (
+              <MessageActions message={message} />
+            )}
 
-        {/* Suggested Questions */}
-        {response?.recommendations && response.recommendations.length > 0 && (
-          <SuggestionsSection 
-            suggestions={response.recommendations} 
-            onSuggestionClick={onSuggestionClick} 
-          />
+            {/* File Links */}
+            {response?.file_links && response.file_links.length > 0 && (
+              <FileLinksSection files={response.file_links} />
+            )}
+
+            {/* Suggested Questions */}
+            {response?.recommendations && response.recommendations.length > 0 && (
+              <SuggestionsSection
+                suggestions={response.recommendations}
+                onSuggestionClick={onSuggestionClick}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
