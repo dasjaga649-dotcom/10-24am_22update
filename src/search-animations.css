@@ -1,0 +1,226 @@
+/* Modern Search Transition Animations */
+
+/* Client page transition states */
+.client-page.transitioning {
+  position: relative;
+}
+
+.client-page.transitioning::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+  animation: fadeInBackdrop 0.4s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+@keyframes fadeInBackdrop {
+  to {
+    opacity: 1;
+  }
+}
+
+.client-page.transitioning .welcome-section {
+  animation: fadeOutUp 0.4s ease-out forwards;
+}
+
+.client-page.transitioning .client-search-container.search-moving {
+  animation: searchBarMoveDown 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  z-index: 1000;
+}
+
+.client-page.transitioning .question-cards-container.cards-disappearing {
+  animation: cardsDisappear 0.5s ease-out forwards;
+}
+
+/* Individual question card animations */
+.client-page.transitioning .question-card-horizontal:nth-child(odd) {
+  animation: slideOutLeft 0.5s ease-out forwards;
+  animation-delay: 0.05s;
+}
+
+.client-page.transitioning .question-card-horizontal:nth-child(even) {
+  animation: slideOutRight 0.5s ease-out forwards;
+  animation-delay: 0.1s;
+}
+
+/* Welcome section fade out animation */
+@keyframes fadeOutUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+/* Question cards slide out animations */
+@keyframes slideOutLeft {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(-20px) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-150px) scale(0.8);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(20px) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(150px) scale(0.8);
+  }
+}
+
+/* Cards container disappear */
+@keyframes cardsDisappear {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 0.2;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(40px);
+    visibility: hidden;
+  }
+}
+
+/* Search bar move down animation */
+@keyframes searchBarMoveDown {
+  0% {
+    transform: translateY(0);
+    width: 50%;
+    max-width: 600px;
+    min-width: 400px;
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(60px);
+    width: 50%;
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(120px);
+    width: 48%;
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(200px);
+    width: 46%;
+    opacity: 0.6;
+  }
+  90% {
+    transform: translateY(280px);
+    width: 44%;
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(350px);
+    width: 50%;
+    max-width: 800px;
+    min-width: 400px;
+    opacity: 0;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    margin-left: -25%;
+  }
+}
+
+/* Chat page entrance animation */
+.page-transition-enter-active {
+  animation: chatPageSlideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+/* Instant chat page appearance for scroll trigger */
+.page-transition-instant {
+  animation: chatPageInstantIn 0.2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes chatPageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes chatPageInstantIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth search input focus animation during transition */
+.client-page.transitioning .client-search-input {
+  animation: searchInputGlow 0.8s ease-out;
+}
+
+@keyframes searchInputGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(37, 99, 235, 0.2);
+    border-color: #2563eb;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+/* Prevent interaction during transition */
+.client-page.transitioning .client-search-input,
+.client-page.transitioning .search-send-button,
+.client-page.transitioning .question-card-horizontal {
+  pointer-events: none;
+}
+
+/* Enhance button animation during transition */
+.client-page.transitioning .search-send-button {
+  animation: buttonPulse 0.8s ease-out;
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.1);
+    background: #1d4ed8;
+  }
+}
