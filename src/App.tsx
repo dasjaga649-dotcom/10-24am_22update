@@ -1175,7 +1175,10 @@ const TypewriterContent: React.FC<{
 
     const timer = setInterval(() => {
       if (currentIndex < words.length) {
-        setDisplayedContent(prev => prev + words[currentIndex].word);
+        const currentWord = words[currentIndex];
+        if (currentWord && typeof currentWord.word !== 'undefined') {
+          setDisplayedContent(prev => prev + currentWord.word);
+        }
         currentIndex++;
       } else {
         clearInterval(timer);
