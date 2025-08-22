@@ -839,7 +839,7 @@ const MessageActions: React.FC<{
       if (message.response?.related_content && message.response.related_content.length > 0) {
         markdown += '## Related Pages\n\n';
         message.response.related_content.forEach(item => {
-          markdown += `- [🔗 ${item.title}](${item.url})\n`;
+          markdown += `- [���� ${item.title}](${item.url})\n`;
         });
       }
 
@@ -1130,9 +1130,23 @@ const TypewriterContent: React.FC<{
       const extractWords = (node: Node) => {
         if (node.nodeType === Node.TEXT_NODE) {
           const text = node.textContent || '';
-          const textWords = text.split(/(\s+)/).filter(w => w.length > 0);
-          textWords.forEach(word => {
-            words.push({ word, isHTML: false });
+          // Split by spaces but keep spaces as separate elements
+          const parts = text.split(/(\s+)/);
+          parts.forEach(part => {
+            if (part.length > 0) {
+              if (/\s/.test(part)) {
+                // This is whitespace
+                words.push({ word: part, isHTML: false });
+              } else {
+                // This is a word, split it further if needed
+                const wordParts = part.split(/(\W+)/);
+                wordParts.forEach(wordPart => {
+                  if (wordPart.length > 0) {
+                    words.push({ word: wordPart, isHTML: false });
+                  }
+                });
+              }
+            }
           });
         } else if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;
