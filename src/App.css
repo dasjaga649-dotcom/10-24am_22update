@@ -49,7 +49,7 @@
 
         /* Prose styles for markdown content */
         .prose {
-          line-height: 1.6;
+          line-height: 1.5;
           font-size: 0.875rem;
           /* Smaller text for chat */
         }
@@ -60,8 +60,8 @@
         }
 
         .chat-message-content p {
-          margin-bottom: 1rem;
-          line-height: 1.7;
+          margin-bottom: 0.75rem; /* 12px spacing between paragraphs */
+          line-height: 1.4;
         }
 
         .chat-message-content p:last-child {
@@ -71,13 +71,13 @@
         /* Better spacing for lists */
         .chat-message-content ul,
         .chat-message-content ol {
-          margin: 1rem 0;
+          margin: 0.75rem 0; /* 12px spacing around lists */
           padding-left: 1.5rem;
         }
 
         .chat-message-content li {
-          margin-bottom: 0.75rem;
-          line-height: 1.6;
+          margin-bottom: 0.5rem; /* 8px spacing between list items */
+          line-height: 1.4;
         }
 
         .chat-message-content li:last-child {
