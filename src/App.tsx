@@ -1118,44 +1118,70 @@ const TypewriterContent: React.FC<{
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    if (!content) return;
+    if (!content || content.trim() === '') {
+      setIsComplete(true);
+      onComplete?.();
+      return;
+    }
 
     // Simplified approach: split content into words while preserving basic HTML
     const parseHTMLToWords = (html: string) => {
-      // Simple approach: split by spaces and treat each part as a "word"
-      const parts = html.split(/(\s+)/);
-      const words: Array<{word: string, isHTML: boolean}> = [];
+      try {
+        // Simple approach: split by spaces and treat each part as a "word"
+        const parts = html.split(/(\s+)/);
+        const words: Array<{word: string, isHTML: boolean}> = [];
 
-      parts.forEach(part => {
-        if (part && part.length > 0) {
-          words.push({
-            word: part,
-            isHTML: part.includes('<') || part.includes('>')
-          });
-        }
-      });
+        parts.forEach(part => {
+          if (part && part.length > 0) {
+            words.push({
+              word: part,
+              isHTML: part.includes('<') || part.includes('>')
+            });
+          }
+        });
 
-      return words.filter(w => w.word && w.word.length > 0);
+        return words.filter(w => w && w.word && w.word.length > 0);
+      } catch (error) {
+        console.error('Error parsing HTML to words:', error);
+        // Fallback: return the entire content as one word
+        return [{ word: html, isHTML: true }];
+      }
     };
 
-    const words = parseHTMLToWords(content);
-    let currentIndex = 0;
+    try {
+      const words = parseHTMLToWords(content);
+      let currentIndex = 0;
 
-    const timer = setInterval(() => {
-      if (currentIndex < words.length) {
-        const currentWord = words[currentIndex];
-        if (currentWord && typeof currentWord.word !== 'undefined') {
-          setDisplayedContent(prev => prev + currentWord.word);
-        }
-        currentIndex++;
-      } else {
-        clearInterval(timer);
+      // If no words found, display content immediately
+      if (!words || words.length === 0) {
+        setDisplayedContent(content);
         setIsComplete(true);
         onComplete?.();
+        return;
       }
-    }, speed);
 
-    return () => clearInterval(timer);
+      const timer = setInterval(() => {
+        if (currentIndex < words.length) {
+          const currentWord = words[currentIndex];
+          if (currentWord && typeof currentWord.word !== 'undefined') {
+            setDisplayedContent(prev => prev + currentWord.word);
+          }
+          currentIndex++;
+        } else {
+          clearInterval(timer);
+          setIsComplete(true);
+          onComplete?.();
+        }
+      }, speed);
+
+      return () => clearInterval(timer);
+    } catch (error) {
+      console.error('Error in typewriter effect:', error);
+      // Fallback: display content immediately
+      setDisplayedContent(content);
+      setIsComplete(true);
+      onComplete?.();
+    }
   }, [content, speed, onComplete]);
 
   return (
