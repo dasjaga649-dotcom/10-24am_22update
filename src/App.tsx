@@ -1242,7 +1242,7 @@ const BotMessage: React.FC<{
 
         {/* Additional Content - Show after typewriter completes */}
         {showAdditionalContent && (
-          <>
+          <div className={!isOldMessage && !isWelcomeMessage ? 'additional-content' : ''}>
             {/* Related Content Card Carousel - Show after typewriter for non-welcome messages */}
             {!isWelcomeMessage && response?.related_content && response.related_content.length > 0 && (
               <RelatedContentCarousel items={response.related_content} />
@@ -1265,7 +1265,7 @@ const BotMessage: React.FC<{
                 onSuggestionClick={onSuggestionClick}
               />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
