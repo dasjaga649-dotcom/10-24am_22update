@@ -1201,7 +1201,9 @@ const BotMessage: React.FC<{
 }> = ({ message, onSuggestionClick }) => {
   const response = message.response;
   const isWelcomeMessage = message.id === 1 && message.text === "Hello! I am your AI partner, Husqy. How can I help you today?";
-  const [showAdditionalContent, setShowAdditionalContent] = useState(isWelcomeMessage);
+  // For existing messages (more than 3 seconds old), skip typewriter effect
+  const isOldMessage = Date.now() - message.timestamp.getTime() > 3000;
+  const [showAdditionalContent, setShowAdditionalContent] = useState(isWelcomeMessage || isOldMessage);
 
   const handleTypewriterComplete = () => {
     setShowAdditionalContent(true);
