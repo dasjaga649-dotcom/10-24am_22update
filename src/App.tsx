@@ -433,7 +433,7 @@ function App() {
       {/* Chat History Panel */}
       <div id="chat-history" className="chat-history-container">
         {messages.map((message) => (
-          <div key={message.id} className="mb-4">
+          <div key={message.id} className="mb-3">
             {message.isUser ? (
               <UserMessage text={message.text} />
             ) : (
