@@ -1175,7 +1175,7 @@ const TypewriterContent: React.FC<{
 
   return (
     <div
-      className="typewriter-content"
+      className={`typewriter-content ${isComplete ? 'typewriter-complete' : ''}`}
       dangerouslySetInnerHTML={{ __html: displayedContent }}
     />
   );
