@@ -1120,54 +1120,22 @@ const TypewriterContent: React.FC<{
   useEffect(() => {
     if (!content) return;
 
-    // Parse HTML content to extract words while preserving structure
+    // Simplified approach: split content into words while preserving basic HTML
     const parseHTMLToWords = (html: string) => {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = html;
-
+      // Simple approach: split by spaces and treat each part as a "word"
+      const parts = html.split(/(\s+)/);
       const words: Array<{word: string, isHTML: boolean}> = [];
 
-      const extractWords = (node: Node) => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          const text = node.textContent || '';
-          // Split by spaces but keep spaces as separate elements
-          const parts = text.split(/(\s+)/);
-          parts.forEach(part => {
-            if (part.length > 0) {
-              if (/\s/.test(part)) {
-                // This is whitespace
-                words.push({ word: part, isHTML: false });
-              } else {
-                // This is a word, split it further if needed
-                const wordParts = part.split(/(\W+)/);
-                wordParts.forEach(wordPart => {
-                  if (wordPart.length > 0) {
-                    words.push({ word: wordPart, isHTML: false });
-                  }
-                });
-              }
-            }
-          });
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = node as Element;
-          const tagName = element.tagName.toLowerCase();
-
-          // Add opening tag
+      parts.forEach(part => {
+        if (part && part.length > 0) {
           words.push({
-            word: `<${tagName}${Array.from(element.attributes).map(attr => ` ${attr.name}="${attr.value}"`).join('')}>`,
-            isHTML: true
+            word: part,
+            isHTML: part.includes('<') || part.includes('>')
           });
-
-          // Process children
-          Array.from(node.childNodes).forEach(extractWords);
-
-          // Add closing tag
-          words.push({ word: `</${tagName}>`, isHTML: true });
         }
-      };
+      });
 
-      Array.from(tempDiv.childNodes).forEach(extractWords);
-      return words;
+      return words.filter(w => w.word && w.word.length > 0);
     };
 
     const words = parseHTMLToWords(content);
