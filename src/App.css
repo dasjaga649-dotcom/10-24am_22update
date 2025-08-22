@@ -1086,6 +1086,11 @@
           display: none;
         }
 
+        /* Fade-in animation for additional content */
+        .additional-content {
+          animation: fadeInUp 0.4s ease-out forwards;
+        }
+
         /* Message Action Buttons */
         .message-actions {
           border-top: 1px solid #f3f4f6;
