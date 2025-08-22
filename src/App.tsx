@@ -227,17 +227,17 @@ function App() {
     const messageText = query || inputValue.trim();
     if (!messageText || isTransitioning) return;
 
-    // Start the search transition animation
+    // Start the search transition (no animation)
     setIsTransitioning(true);
     setSearchInitiated(true);
     setScrollTriggered(false);
 
-    // Wait for animations to complete before switching to chat page
+    // Switch to chat page immediately (no animation delay)
     setTimeout(() => {
       setCurrentPage('chat');
       setIsSearching(true);
       setIsTransitioning(false);
-    }, 800); // 0.8s total animation duration
+    }, 0); // No animation duration
 
     const userMessage: Message = {
       id: Date.now(),
