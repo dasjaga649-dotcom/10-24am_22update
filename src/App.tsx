@@ -839,7 +839,7 @@ const MessageActions: React.FC<{
       if (message.response?.related_content && message.response.related_content.length > 0) {
         markdown += '## Related Pages\n\n';
         message.response.related_content.forEach(item => {
-          markdown += `- [���� ${item.title}](${item.url})\n`;
+          markdown += `- [🔗 ${item.title}](${item.url})\n`;
         });
       }
 
@@ -1228,7 +1228,7 @@ const BotMessage: React.FC<{
             ) : (
               <TypewriterContent
                 content={processedHTML}
-                speed={30}
+                speed={80}
                 onComplete={handleTypewriterComplete}
               />
             )}
