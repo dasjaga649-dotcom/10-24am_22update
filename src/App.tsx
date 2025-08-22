@@ -1206,7 +1206,10 @@ const BotMessage: React.FC<{
   const [showAdditionalContent, setShowAdditionalContent] = useState(isWelcomeMessage || isOldMessage);
 
   const handleTypewriterComplete = () => {
-    setShowAdditionalContent(true);
+    // Add a small delay before showing additional content for better UX
+    setTimeout(() => {
+      setShowAdditionalContent(true);
+    }, 300);
   };
 
   const processedHTML = message.text ?
