@@ -1308,7 +1308,7 @@ const BotMessage: React.FC<{
             ) : (
               <TypewriterContent
                 content={processedHTML}
-                speed={80}
+                speed={100}
                 onComplete={handleTypewriterComplete}
               />
             )}
