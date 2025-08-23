@@ -1128,50 +1128,50 @@ const TypewriterContent: React.FC<{
     setDisplayedContent('');
     setIsComplete(false);
 
-    // Split content into words while preserving HTML tags
-    const parseContentIntoChunks = (html: string) => {
-      // Split by spaces but be careful with HTML tags
-      const parts = html.split(/(\s+)/);
-      const chunks: string[] = [];
-
-      for (const part of parts) {
-        if (part.trim().length > 0) {
-          chunks.push(part);
-        }
-      }
-
-      return chunks;
-    };
-
-    const chunks = parseContentIntoChunks(content);
-    let currentChunkIndex = 0;
+    // Improved content streaming with multiple words per update
+    const words = content.split(/(\s+)/).filter(word => word.length > 0);
+    let currentWordIndex = 0;
     let timeoutId: NodeJS.Timeout;
 
-    const streamChunks = () => {
-      if (currentChunkIndex >= chunks.length) {
+    const streamContent = () => {
+      if (currentWordIndex >= words.length) {
+        // Ensure all content is displayed
+        setDisplayedContent(content);
         setIsComplete(true);
         onComplete?.();
         return;
       }
 
-      // Build content up to current chunk
-      const contentUpToHere = chunks.slice(0, currentChunkIndex + 1).join('');
-      setDisplayedContent(contentUpToHere);
+      // Stream multiple words at once for faster display
+      const wordsToAdd = Math.min(3, words.length - currentWordIndex); // Add 3 words at a time
+      const nextWords = words.slice(currentWordIndex, currentWordIndex + wordsToAdd);
 
-      currentChunkIndex++;
+      // Build complete content up to current position
+      const allWordsUpToHere = words.slice(0, currentWordIndex + wordsToAdd);
+      setDisplayedContent(allWordsUpToHere.join(''));
 
-      // Continue to next chunk
-      timeoutId = setTimeout(streamChunks, speed);
+      currentWordIndex += wordsToAdd;
+
+      // Continue streaming
+      timeoutId = setTimeout(streamContent, speed);
     };
 
     // Start streaming
-    streamChunks();
+    streamContent();
+
+    // Safety timeout to ensure content completes
+    const safetyTimeout = setTimeout(() => {
+      setDisplayedContent(content);
+      setIsComplete(true);
+      onComplete?.();
+    }, 5000); // 5 second fallback
 
     // Cleanup function
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
+      clearTimeout(safetyTimeout);
     };
   }, [content, speed, onComplete]);
 
