@@ -1064,9 +1064,11 @@
         /* Import search transition animations */
         @import url('./search-animations.css');
 
-        /* Typewriter Effect Styles */
+        /* Enhanced Typewriter Effect Styles */
         .typewriter-content {
           position: relative;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
         }
 
         .typewriter-content::after {
@@ -1074,6 +1076,8 @@
           color: #4f46e5;
           animation: typewriter-blink 1s infinite;
           font-weight: bold;
+          display: inline-block;
+          margin-left: 1px;
         }
 
         @keyframes typewriter-blink {
@@ -1086,9 +1090,79 @@
           display: none;
         }
 
-        /* Fade-in animation for additional content */
+        /* Smooth fade-in animation for images in typewriter content */
+        .typewriter-content img {
+          animation: imageStreamIn 0.5s ease-out forwards;
+          opacity: 0;
+          transform: scale(0.95);
+        }
+
+        @keyframes imageStreamIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        /* Enhanced fade-in animation for additional content */
         .additional-content {
           animation: fadeInUp 0.4s ease-out forwards;
+          opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Smooth character streaming effect */
+        .typewriter-content * {
+          display: inline;
+        }
+
+        /* Ensure proper spacing during streaming */
+        .typewriter-content p,
+        .typewriter-content div,
+        .typewriter-content h1,
+        .typewriter-content h2,
+        .typewriter-content h3,
+        .typewriter-content h4,
+        .typewriter-content h5,
+        .typewriter-content h6 {
+          display: block;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Tables and lists during streaming */
+        .typewriter-content table,
+        .typewriter-content ul,
+        .typewriter-content ol {
+          display: block;
+          opacity: 0;
+          animation: elementStreamIn 0.3s ease-out forwards;
+          animation-delay: 0.1s;
+        }
+
+        @keyframes elementStreamIn {
+          from {
+            opacity: 0;
+            transform: translateY(5px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         /* Message Action Buttons */
