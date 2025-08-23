@@ -1548,6 +1548,13 @@ const preprocessResponse = (text: string): string => {
   // Ensure proper paragraph breaks
   processedText = processedText.replace(/\n([A-Z][^#*\->\n])/g, '\n\n$1');
 
+  // Remove any extra bold formatting that might cause issues
+  processedText = processedText.replace(/\*\*\*+/g, '**'); // Normalize multiple asterisks
+  processedText = processedText.replace(/\*\*\s*\*\*/g, ''); // Remove empty bold tags
+
+  // Clean up any malformed bold/italic combinations
+  processedText = processedText.replace(/\*+\s*\*+/g, '**'); // Fix broken asterisks
+
   // Final cleanup: remove any trailing spaces on lines
   processedText = processedText.replace(/[ \t]+$/gm, '');
 
