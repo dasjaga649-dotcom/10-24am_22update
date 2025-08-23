@@ -1108,13 +1108,13 @@ const MessageActions: React.FC<{
   );
 };
 
-// Clean index-based Typewriter component
+// Fast Typewriter component with word-based streaming
 const TypewriterContent: React.FC<{
   content: string;
   speed?: number;
   onComplete?: () => void;
-}> = ({ content, speed = 100, onComplete }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+}> = ({ content, speed = 20, onComplete }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
@@ -1125,31 +1125,40 @@ const TypewriterContent: React.FC<{
     }
 
     // Reset state when content changes
-    setCurrentIndex(0);
+    setDisplayedContent('');
     setIsComplete(false);
 
-    // Start the typewriter effect
-    const timer = setInterval(() => {
-      setCurrentIndex(prevIndex => {
-        const nextIndex = prevIndex + 1;
+    // Split content into words for faster streaming
+    const words = content.split(' ');
+    let currentWordIndex = 0;
 
-        // Check if we've reached the end
-        if (nextIndex >= content.length) {
-          clearInterval(timer);
-          setIsComplete(true);
-          onComplete?.();
-          return content.length;
-        }
+    const streamWords = () => {
+      if (currentWordIndex >= words.length) {
+        setIsComplete(true);
+        onComplete?.();
+        return;
+      }
 
-        return nextIndex;
+      // Add the next word (with space if not the first word)
+      setDisplayedContent(prev => {
+        const newWord = words[currentWordIndex];
+        return currentWordIndex === 0 ? newWord : prev + ' ' + newWord;
       });
-    }, speed);
 
-    return () => clearInterval(timer);
+      currentWordIndex++;
+
+      // Continue to next word
+      setTimeout(streamWords, speed);
+    };
+
+    // Start streaming
+    streamWords();
+
+    // Cleanup function
+    return () => {
+      currentWordIndex = words.length; // Stop streaming if component unmounts
+    };
   }, [content, speed, onComplete]);
-
-  // Get the current substring to display
-  const displayedContent = content.substring(0, currentIndex);
 
   return (
     <div
