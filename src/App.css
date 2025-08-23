@@ -28,11 +28,11 @@
         /* Main chat history container */
         .chat-history {
           flex-grow: 1;
-          padding-top: 2rem;
+          padding-top: 1rem; /* Reduced top padding */
           padding-bottom: 0;
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 1rem; /* Reduced gap between messages */
         }
 
         /* Styling for the user's chat bubbles */
