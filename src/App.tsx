@@ -1128,28 +1128,40 @@ const TypewriterContent: React.FC<{
     setDisplayedContent('');
     setIsComplete(false);
 
-    // Split content into words for faster streaming
-    const words = content.split(' ');
-    let currentWordIndex = 0;
+    // Split content into words while preserving HTML tags
+    const parseContentIntoChunks = (html: string) => {
+      // Split by spaces but be careful with HTML tags
+      const parts = html.split(/(\s+)/);
+      const chunks: string[] = [];
+
+      for (const part of parts) {
+        if (part.trim().length > 0) {
+          chunks.push(part);
+        }
+      }
+
+      return chunks;
+    };
+
+    const chunks = parseContentIntoChunks(content);
+    let currentChunkIndex = 0;
     let timeoutId: NodeJS.Timeout;
 
-    const streamWords = () => {
-      if (currentWordIndex >= words.length) {
+    const streamChunks = () => {
+      if (currentChunkIndex >= chunks.length) {
         setIsComplete(true);
         onComplete?.();
         return;
       }
 
-      // Add the next word (with space if not the first word)
-      setDisplayedContent(prev => {
-        const newWord = words[currentWordIndex];
-        return currentWordIndex === 0 ? newWord : prev + ' ' + newWord;
-      });
+      // Build content up to current chunk
+      const contentUpToHere = chunks.slice(0, currentChunkIndex + 1).join('');
+      setDisplayedContent(contentUpToHere);
 
-      currentWordIndex++;
+      currentChunkIndex++;
 
-      // Continue to next word
-      timeoutId = setTimeout(streamWords, speed);
+      // Continue to next chunk
+      timeoutId = setTimeout(streamChunks, speed);
     };
 
     // Start streaming
