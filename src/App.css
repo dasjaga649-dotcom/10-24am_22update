@@ -50,7 +50,7 @@
 
         /* Prose styles for markdown content */
         .prose {
-          line-height: 1.3; /* Tighter line spacing */
+          line-height: 1.2; /* Very tight line spacing */
           font-size: 0.875rem;
           /* Smaller text for chat */
         }
@@ -68,10 +68,19 @@
         .chat-message-content h4,
         .chat-message-content h5,
         .chat-message-content h6 {
-          margin-top: 0.5rem;
-          margin-bottom: 0.25rem;
-          line-height: 1.2;
+          margin-top: 0.25rem;
+          margin-bottom: 0.125rem;
+          line-height: 1.1;
+          font-weight: 600;
         }
+
+        /* Specific heading styles */
+        .chat-message-content h1 { font-size: 1.1rem; }
+        .chat-message-content h2 { font-size: 1.05rem; }
+        .chat-message-content h3 { font-size: 1rem; }
+        .chat-message-content h4 { font-size: 0.95rem; }
+        .chat-message-content h5 { font-size: 0.9rem; }
+        .chat-message-content h6 { font-size: 0.85rem; }
 
         /* Code and pre blocks */
         .chat-message-content pre,
@@ -81,8 +90,8 @@
         }
 
         .chat-message-content p {
-          margin-bottom: 0.25rem; /* 4px spacing between paragraphs */
-          line-height: 1.3; /* Tighter line spacing */
+          margin-bottom: 0.125rem; /* 2px spacing between paragraphs */
+          line-height: 1.2; /* Even tighter line spacing */
         }
 
         .chat-message-content p:last-child {
@@ -92,7 +101,7 @@
         /* Better spacing for lists */
         .chat-message-content ul,
         .chat-message-content ol {
-          margin: 0.25rem 0; /* 4px spacing around lists */
+          margin: 0.125rem 0; /* 2px spacing around lists */
           padding-left: 1.5rem;
         }
 
