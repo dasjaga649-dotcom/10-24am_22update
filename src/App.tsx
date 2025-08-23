@@ -1221,21 +1221,33 @@ const BotMessage: React.FC<{
   const cleanupHTML = (html: string): string => {
     let cleanedHTML = html;
 
-    // Remove any remaining # symbols from heading content
+    // Remove any remaining # symbols from heading content (multiple patterns)
     cleanedHTML = cleanedHTML.replace(/<h([1-6])([^>]*)>\s*#+\s*/gi, '<h$1$2>');
+    cleanedHTML = cleanedHTML.replace(/<h([1-6])([^>]*)>([^<]*?)#+([^<]*?)<\/h[1-6]>/gi, '<h$1$2>$3$4</h$1>');
     cleanedHTML = cleanedHTML.replace(/\s*#+\s*<\/h([1-6])>/gi, '</h$1>');
 
     // Clean up any malformed symbols in content
     cleanedHTML = cleanedHTML.replace(/>\s*#+\s*([^<]+)</g, '>$1<');
+    cleanedHTML = cleanedHTML.replace(/>\s*\*+\s*([^<]+)</g, '>$1<');
+
+    // Fix text content that still contains markdown symbols
+    cleanedHTML = cleanedHTML.replace(/([^<>]*?)#+\s*([^<>]*?)(?=<|$)/g, '$1$2');
+
+    // Clean up stray symbols at the beginning of text content
+    cleanedHTML = cleanedHTML.replace(/>(\s*[#*\-+]+\s*)([^<]+)</g, '>$2<');
 
     // Fix any double spaces in content
     cleanedHTML = cleanedHTML.replace(/>\s+</g, '><');
     cleanedHTML = cleanedHTML.replace(/\s{2,}/g, ' ');
 
     // Clean up any stray markdown symbols that weren't processed
-    cleanedHTML = cleanedHTML.replace(/([^`])\*{1,2}([^*`]+)\*{1,2}([^`])/g, '$1<strong>$2</strong>$3');
+    cleanedHTML = cleanedHTML.replace(/([^`<])\*{1,2}([^*`<>]+)\*{1,2}([^`>])/g, '$1<strong>$2</strong>$3');
 
-    return cleanedHTML;
+    // Remove any leading/trailing whitespace in tags
+    cleanedHTML = cleanedHTML.replace(/>\s+([^<\s])/g, '>$1');
+    cleanedHTML = cleanedHTML.replace(/([^>\s])\s+</g, '$1<');
+
+    return cleanedHTML.trim();
   };
 
   const processedHTML = message.text ?
