@@ -433,7 +433,7 @@ function App() {
       {/* Chat History Panel */}
       <div id="chat-history" className="chat-history-container">
         {messages.map((message) => (
-          <div key={message.id} className="mb-3">
+          <div key={message.id} className="mb-2">
             {message.isUser ? (
               <UserMessage text={message.text} />
             ) : (
@@ -1229,7 +1229,7 @@ const BotMessage: React.FC<{
             ) : (
               <TypewriterContent
                 content={processedHTML}
-                speed={15}
+                speed={8}
                 onComplete={handleTypewriterComplete}
               />
             )}
