@@ -1208,9 +1208,9 @@ const BotMessage: React.FC<{
         {/* Main Answer with Fast Typewriter Effect */}
         {message.text && (
           <div
-            className="p-4 rounded-xl prose text-gray-800 chat-message-content cursor-pointer"
-            onClick={handleClickToComplete}
-            title="Click to show full response instantly"
+            className={`p-4 rounded-xl prose text-gray-800 chat-message-content ${!isWelcomeMessage && !isOldMessage && !skipTypewriter ? 'cursor-pointer' : ''}`}
+            onClick={!isWelcomeMessage && !isOldMessage && !skipTypewriter ? handleClickToComplete : undefined}
+            title={!isWelcomeMessage && !isOldMessage && !skipTypewriter ? "Click to show full response instantly" : undefined}
           >
             {isWelcomeMessage || isOldMessage || skipTypewriter ? (
               <div dangerouslySetInnerHTML={{ __html: processedHTML }} />
