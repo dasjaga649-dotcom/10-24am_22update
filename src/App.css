@@ -1193,24 +1193,61 @@
           padding: 0;
         }
 
-        /* Tables and lists during streaming */
-        .typewriter-content table,
-        .typewriter-content ul,
-        .typewriter-content ol {
-          display: block;
-          opacity: 0;
-          animation: elementStreamIn 0.3s ease-out forwards;
-          animation-delay: 0.1s;
+        /* Enhanced table styling for smooth display */
+        .prose table,
+        .chat-message-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 0.5rem 0;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          line-height: 1.3;
         }
 
-        @keyframes elementStreamIn {
+        .prose th,
+        .prose td,
+        .chat-message-content th,
+        .chat-message-content td {
+          padding: 0.5rem 0.75rem;
+          text-align: left;
+          border-bottom: 1px solid #e5e7eb;
+          line-height: 1.3;
+        }
+
+        .prose th,
+        .chat-message-content th {
+          background-color: #f8fafc;
+          font-weight: 600;
+          color: #374151;
+          font-size: 0.8rem;
+        }
+
+        .prose td,
+        .chat-message-content td {
+          color: #4b5563;
+          font-size: 0.8rem;
+        }
+
+        .prose tr:last-child td,
+        .chat-message-content tr:last-child td {
+          border-bottom: none;
+        }
+
+        /* Tables during streaming */
+        .typewriter-content table {
+          animation: tableStreamIn 0.5s ease-out forwards;
+          opacity: 1;
+        }
+
+        @keyframes tableStreamIn {
           from {
-            opacity: 0;
-            transform: translateY(5px);
+            opacity: 0.7;
+            transform: scale(0.98);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
           }
         }
 
