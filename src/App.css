@@ -58,6 +58,26 @@
         /* Enhanced chat message content formatting */
         .chat-message-content {
           white-space: pre-line;
+          line-height: 1.3; /* Consistent tight line spacing */
+        }
+
+        /* Heading spacing in chat content */
+        .chat-message-content h1,
+        .chat-message-content h2,
+        .chat-message-content h3,
+        .chat-message-content h4,
+        .chat-message-content h5,
+        .chat-message-content h6 {
+          margin-top: 0.5rem;
+          margin-bottom: 0.25rem;
+          line-height: 1.2;
+        }
+
+        /* Code and pre blocks */
+        .chat-message-content pre,
+        .chat-message-content code {
+          line-height: 1.2;
+          margin: 0.25rem 0;
         }
 
         .chat-message-content p {
