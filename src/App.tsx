@@ -1131,6 +1131,7 @@ const TypewriterContent: React.FC<{
     // Split content into words for faster streaming
     const words = content.split(' ');
     let currentWordIndex = 0;
+    let timeoutId: NodeJS.Timeout;
 
     const streamWords = () => {
       if (currentWordIndex >= words.length) {
@@ -1148,7 +1149,7 @@ const TypewriterContent: React.FC<{
       currentWordIndex++;
 
       // Continue to next word
-      setTimeout(streamWords, speed);
+      timeoutId = setTimeout(streamWords, speed);
     };
 
     // Start streaming
@@ -1156,7 +1157,9 @@ const TypewriterContent: React.FC<{
 
     // Cleanup function
     return () => {
-      currentWordIndex = words.length; // Stop streaming if component unmounts
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     };
   }, [content, speed, onComplete]);
 
