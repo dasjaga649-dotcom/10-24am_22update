@@ -433,7 +433,7 @@ function App() {
       {/* Chat History Panel */}
       <div id="chat-history" className="chat-history-container">
         {messages.map((message) => (
-          <div key={message.id} className="mb-2">
+          <div key={message.id} className="mb-1">
             {message.isUser ? (
               <UserMessage text={message.text} />
             ) : (
@@ -1212,10 +1212,6 @@ const BotMessage: React.FC<{
     setShowAdditionalContent(true);
   };
 
-  const processedHTML = message.text ?
-    cleanupHTML(marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string)
-    : '';
-
   // Helper function to clean up HTML output
   const cleanupHTML = (html: string): string => {
     let cleanedHTML = html;
@@ -1231,11 +1227,15 @@ const BotMessage: React.FC<{
     cleanedHTML = cleanedHTML.replace(/>\s+</g, '><');
     cleanedHTML = cleanedHTML.replace(/\s{2,}/g, ' ');
 
-    // Clean up any stray markdown symbols
+    // Clean up any stray markdown symbols that weren't processed
     cleanedHTML = cleanedHTML.replace(/([^`])\*{1,2}([^*`]+)\*{1,2}([^`])/g, '$1<strong>$2</strong>$3');
 
     return cleanedHTML;
   };
+
+  const processedHTML = message.text ?
+    cleanupHTML(marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string)
+    : '';
 
   return (
     <div className="flex items-start justify-center">

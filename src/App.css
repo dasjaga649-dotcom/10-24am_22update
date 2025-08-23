@@ -28,11 +28,11 @@
         /* Main chat history container */
         .chat-history {
           flex-grow: 1;
-          padding-top: 1rem; /* Reduced top padding */
+          padding-top: 0.5rem; /* Further reduced top padding */
           padding-bottom: 0;
           display: flex;
           flex-direction: column;
-          gap: 1rem; /* Reduced gap between messages */
+          gap: 0.5rem; /* Further reduced gap between messages */
         }
 
         /* Styling for the user's chat bubbles */
@@ -85,8 +85,12 @@
         /* Code and pre blocks */
         .chat-message-content pre,
         .chat-message-content code {
-          line-height: 1.2;
-          margin: 0.25rem 0;
+          line-height: 1.1;
+          margin: 0.125rem 0;
+          padding: 0.25rem;
+          background-color: #f8f9fa;
+          border-radius: 0.25rem;
+          font-size: 0.8rem;
         }
 
         .chat-message-content p {
