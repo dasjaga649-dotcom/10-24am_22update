@@ -1248,6 +1248,13 @@ const BotMessage: React.FC<{
     cleanedHTML = cleanedHTML.replace(/>\s+([^<\s])/g, '>$1');
     cleanedHTML = cleanedHTML.replace(/([^>\s])\s+</g, '$1<');
 
+    // Ensure proper paragraph structure
+    cleanedHTML = cleanedHTML.replace(/<p>\s*<\/p>/g, ''); // Remove empty paragraphs
+
+    // Fix any nested bold/strong tags
+    cleanedHTML = cleanedHTML.replace(/<strong>\s*<strong>/g, '<strong>');
+    cleanedHTML = cleanedHTML.replace(/<\/strong>\s*<\/strong>/g, '</strong>');
+
     return cleanedHTML.trim();
   };
 

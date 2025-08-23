@@ -83,8 +83,20 @@
         .chat-message-content div,
         .chat-message-content span,
         .chat-message-content li,
-        .chat-message-content td {
-          font-weight: normal;
+        .chat-message-content td,
+        .chat-message-content blockquote,
+        .chat-message-content ul,
+        .chat-message-content ol {
+          font-weight: 400 !important; /* Force normal weight */
+        }
+
+        /* Reset any bold styling that might be inherited */
+        .chat-message-content {
+          font-weight: 400;
+        }
+
+        .chat-message-content * {
+          font-weight: inherit;
         }
 
         /* Clean up any remaining markdown symbols in rendered content */
