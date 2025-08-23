@@ -1165,7 +1165,7 @@ const TypewriterContent: React.FC<{
     };
 
     // Start streaming
-    streamWords();
+    streamChunks();
 
     // Cleanup function
     return () => {
