@@ -1095,6 +1095,14 @@
           animation: imageStreamIn 0.5s ease-out forwards;
           opacity: 0;
           transform: scale(0.95);
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        .typewriter-content img:hover {
+          transform: scale(1.02);
+          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
         }
 
         @keyframes imageStreamIn {
@@ -1106,6 +1114,18 @@
             opacity: 1;
             transform: scale(1) translateY(0);
           }
+        }
+
+        /* Images in regular prose (non-typewriter) */
+        .prose img:not(.typewriter-content img) {
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        .prose img:not(.typewriter-content img):hover {
+          transform: scale(1.02);
+          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
         }
 
         /* Enhanced fade-in animation for additional content */
