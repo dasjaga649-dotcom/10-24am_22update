@@ -1174,15 +1174,19 @@ const BotMessage: React.FC<{
 }> = ({ message, onSuggestionClick }) => {
   const response = message.response;
   const isWelcomeMessage = message.id === 1 && message.text === "Hello! I am your AI partner, Husqy. How can I help you today?";
-  // For existing messages (more than 3 seconds old), skip typewriter effect
-  const isOldMessage = Date.now() - message.timestamp.getTime() > 3000;
+  // For existing messages (more than 1 second old), skip typewriter effect
+  const isOldMessage = Date.now() - message.timestamp.getTime() > 1000;
   const [showAdditionalContent, setShowAdditionalContent] = useState(isWelcomeMessage || isOldMessage);
+  const [skipTypewriter, setSkipTypewriter] = useState(false);
 
   const handleTypewriterComplete = () => {
-    // Add a small delay before showing additional content for better UX
-    setTimeout(() => {
-      setShowAdditionalContent(true);
-    }, 300);
+    // Immediately show additional content for faster UX
+    setShowAdditionalContent(true);
+  };
+
+  const handleClickToComplete = () => {
+    setSkipTypewriter(true);
+    setShowAdditionalContent(true);
   };
 
   const processedHTML = message.text ?
