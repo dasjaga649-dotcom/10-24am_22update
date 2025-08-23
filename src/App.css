@@ -45,7 +45,7 @@
           margin-left: auto;
           margin-right: 0;
           max-width: 80%;
-          line-height: 1.4; /* Consistent line height for user messages */
+          line-height: 1.3; /* Tighter line height for user messages */
         }
 
         /* Prose styles for markdown content */
