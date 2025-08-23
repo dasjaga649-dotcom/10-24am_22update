@@ -1135,22 +1135,30 @@ const TypewriterContent: React.FC<{
 
     const streamContent = () => {
       if (currentWordIndex >= words.length) {
-        // Ensure all content is displayed
+        // Double-check completion and ensure all content is displayed
         setDisplayedContent(content);
         setIsComplete(true);
-        onComplete?.();
+        setTimeout(() => onComplete?.(), 50); // Small delay for DOM update
         return;
       }
 
-      // Stream multiple words at once for faster display
-      const wordsToAdd = Math.min(3, words.length - currentWordIndex); // Add 3 words at a time
-      const nextWords = words.slice(currentWordIndex, currentWordIndex + wordsToAdd);
+      // Stream multiple words at once for faster, smoother display
+      const wordsToAdd = Math.min(4, words.length - currentWordIndex); // Add 4 words at a time
 
       // Build complete content up to current position
       const allWordsUpToHere = words.slice(0, currentWordIndex + wordsToAdd);
-      setDisplayedContent(allWordsUpToHere.join(''));
+      const newContent = allWordsUpToHere.join('');
+      setDisplayedContent(newContent);
 
       currentWordIndex += wordsToAdd;
+
+      // Check if we're near the end and complete if needed
+      if (currentWordIndex >= words.length * 0.95) {
+        setDisplayedContent(content);
+        setIsComplete(true);
+        setTimeout(() => onComplete?.(), 50);
+        return;
+      }
 
       // Continue streaming
       timeoutId = setTimeout(streamContent, speed);
