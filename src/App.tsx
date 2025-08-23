@@ -1108,12 +1108,12 @@ const MessageActions: React.FC<{
   );
 };
 
-// Typewriter component for streaming text word by word
+// Enhanced Typewriter component with character-based streaming and image handling
 const TypewriterContent: React.FC<{
   content: string;
   speed?: number;
   onComplete?: () => void;
-}> = ({ content, speed = 50, onComplete }) => {
+}> = ({ content, speed = 100, onComplete }) => {
   const [displayedContent, setDisplayedContent] = useState('');
   const [isComplete, setIsComplete] = useState(false);
 
@@ -1124,60 +1124,138 @@ const TypewriterContent: React.FC<{
       return;
     }
 
-    // Simplified approach: split content into words while preserving basic HTML
-    const parseHTMLToWords = (html: string) => {
+    // Enhanced parsing: handle text, HTML tags, and images separately
+    const parseContentForStreaming = (html: string) => {
       try {
-        // Simple approach: split by spaces and treat each part as a "word"
-        const parts = html.split(/(\s+)/);
-        const words: Array<{word: string, isHTML: boolean}> = [];
+        const chunks: Array<{content: string, type: 'text' | 'tag' | 'image', delay?: number}> = [];
+        let currentPos = 0;
 
-        parts.forEach(part => {
-          if (part && part.length > 0) {
-            words.push({
-              word: part,
-              isHTML: part.includes('<') || part.includes('>')
+        // Regular expression to match HTML tags and images
+        const htmlTagRegex = /<[^>]+>/g;
+        const imgTagRegex = /<img[^>]*>/gi;
+
+        // First, extract and mark image positions
+        const imageMatches = Array.from(html.matchAll(imgTagRegex));
+        const tagMatches = Array.from(html.matchAll(htmlTagRegex));
+
+        // Combine all matches and sort by position
+        const allMatches = [
+          ...imageMatches.map(match => ({
+            match,
+            start: match.index!,
+            end: match.index! + match[0].length,
+            type: 'image' as const
+          })),
+          ...tagMatches.filter(match => !imgTagRegex.test(match[0])).map(match => ({
+            match,
+            start: match.index!,
+            end: match.index! + match[0].length,
+            type: 'tag' as const
+          }))
+        ].sort((a, b) => a.start - b.start);
+
+        let lastEnd = 0;
+
+        allMatches.forEach(({match, start, end, type}) => {
+          // Add text before this tag/image
+          if (start > lastEnd) {
+            const textContent = html.slice(lastEnd, start);
+            // Split text into words for streaming
+            const words = textContent.split(/(\s+)/).filter(w => w.length > 0);
+            words.forEach(word => {
+              if (/\s/.test(word)) {
+                chunks.push({content: word, type: 'text'});
+              } else {
+                // Split word into characters for smooth streaming
+                word.split('').forEach(char => {
+                  chunks.push({content: char, type: 'text'});
+                });
+                // Add space after word
+                chunks.push({content: ' ', type: 'text'});
+              }
             });
           }
+
+          // Add the tag/image
+          if (type === 'image') {
+            chunks.push({
+              content: match[0],
+              type: 'image',
+              delay: 300 // Small delay before showing images
+            });
+          } else {
+            chunks.push({content: match[0], type: 'tag'});
+          }
+
+          lastEnd = end;
         });
 
-        return words.filter(w => w && w.word && w.word.length > 0);
+        // Add remaining text
+        if (lastEnd < html.length) {
+          const textContent = html.slice(lastEnd);
+          const words = textContent.split(/(\s+)/).filter(w => w.length > 0);
+          words.forEach(word => {
+            if (/\s/.test(word)) {
+              chunks.push({content: word, type: 'text'});
+            } else {
+              word.split('').forEach(char => {
+                chunks.push({content: char, type: 'text'});
+              });
+              chunks.push({content: ' ', type: 'text'});
+            }
+          });
+        }
+
+        return chunks.filter(chunk => chunk.content.length > 0);
       } catch (error) {
-        console.error('Error parsing HTML to words:', error);
-        // Fallback: return the entire content as one word
-        return [{ word: html, isHTML: true }];
+        console.error('Error parsing content for streaming:', error);
+        return [{content: html, type: 'text' as const}];
       }
     };
 
     try {
-      const words = parseHTMLToWords(content);
+      const chunks = parseContentForStreaming(content);
       let currentIndex = 0;
 
-      // If no words found, display content immediately
-      if (!words || words.length === 0) {
+      if (!chunks || chunks.length === 0) {
         setDisplayedContent(content);
         setIsComplete(true);
         onComplete?.();
         return;
       }
 
-      const timer = setInterval(() => {
-        if (currentIndex < words.length) {
-          const currentWord = words[currentIndex];
-          if (currentWord && typeof currentWord.word !== 'undefined') {
-            setDisplayedContent(prev => prev + currentWord.word);
-          }
-          currentIndex++;
-        } else {
-          clearInterval(timer);
+      const streamNext = () => {
+        if (currentIndex >= chunks.length) {
           setIsComplete(true);
           onComplete?.();
+          return;
         }
-      }, speed);
 
-      return () => clearInterval(timer);
+        const currentChunk = chunks[currentIndex];
+        if (currentChunk && currentChunk.content) {
+          setDisplayedContent(prev => prev + currentChunk.content);
+        }
+
+        currentIndex++;
+
+        // Handle different delays for different content types
+        let nextDelay = speed;
+        if (currentChunk?.type === 'image') {
+          nextDelay = currentChunk.delay || 300;
+        } else if (currentChunk?.type === 'tag') {
+          nextDelay = 10; // Tags appear quickly
+        } else if (currentChunk?.content === ' ') {
+          nextDelay = speed * 0.3; // Spaces appear faster
+        }
+
+        setTimeout(streamNext, nextDelay);
+      };
+
+      // Start streaming
+      streamNext();
+
     } catch (error) {
       console.error('Error in typewriter effect:', error);
-      // Fallback: display content immediately
       setDisplayedContent(content);
       setIsComplete(true);
       onComplete?.();
