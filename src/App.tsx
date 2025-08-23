@@ -1295,8 +1295,8 @@ const BotMessage: React.FC<{
     <div className="flex items-start justify-center">
       <div className="max-w-3xl w-full">
 
-        {/* Related Content Card Carousel - Show immediately for welcome message */}
-        {isWelcomeMessage && response?.related_content && response.related_content.length > 0 && (
+        {/* Related Content Card Carousel - Show FIRST for all messages */}
+        {response?.related_content && response.related_content.length > 0 && (
           <RelatedContentCarousel items={response.related_content} />
         )}
 
@@ -1318,11 +1318,6 @@ const BotMessage: React.FC<{
         {/* Additional Content - Show after typewriter completes */}
         {showAdditionalContent && (
           <div className={!isOldMessage && !isWelcomeMessage ? 'additional-content' : ''}>
-            {/* Related Content Card Carousel - Show after typewriter for non-welcome messages */}
-            {!isWelcomeMessage && response?.related_content && response.related_content.length > 0 && (
-              <RelatedContentCarousel items={response.related_content} />
-            )}
-
             {/* Action Buttons - Hide for welcome message */}
             {message.text && !isWelcomeMessage && (
               <MessageActions message={message} />
