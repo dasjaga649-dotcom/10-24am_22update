@@ -1213,8 +1213,29 @@ const BotMessage: React.FC<{
   };
 
   const processedHTML = message.text ?
-    marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string
+    cleanupHTML(marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string)
     : '';
+
+  // Helper function to clean up HTML output
+  const cleanupHTML = (html: string): string => {
+    let cleanedHTML = html;
+
+    // Remove any remaining # symbols from heading content
+    cleanedHTML = cleanedHTML.replace(/<h([1-6])([^>]*)>\s*#+\s*/gi, '<h$1$2>');
+    cleanedHTML = cleanedHTML.replace(/\s*#+\s*<\/h([1-6])>/gi, '</h$1>');
+
+    // Clean up any malformed symbols in content
+    cleanedHTML = cleanedHTML.replace(/>\s*#+\s*([^<]+)</g, '>$1<');
+
+    // Fix any double spaces in content
+    cleanedHTML = cleanedHTML.replace(/>\s+</g, '><');
+    cleanedHTML = cleanedHTML.replace(/\s{2,}/g, ' ');
+
+    // Clean up any stray markdown symbols
+    cleanedHTML = cleanedHTML.replace(/([^`])\*{1,2}([^*`]+)\*{1,2}([^`])/g, '$1<strong>$2</strong>$3');
+
+    return cleanedHTML;
+  };
 
   return (
     <div className="flex items-start justify-center">
@@ -1457,27 +1478,53 @@ const renderIcons = (text: string): string => {
 const preprocessResponse = (text: string): string => {
   let processedText = text.replace(/&nbsp;|\u00A0|\t/g, ' ');
 
+  // Clean up extra spaces and normalize whitespace
+  processedText = processedText.replace(/\s+/g, ' ').trim();
+
   // Handle line breaks - convert \n to proper spacing
   processedText = processedText.replace(/\\n/g, '\n');
-  processedText = processedText.replace(/\n\n+/g, '\n\n'); // Normalize multiple line breaks
+  processedText = processedText.replace(/\n\s*\n\s*\n+/g, '\n\n'); // Normalize multiple line breaks
 
-  // Ensure proper spacing around horizontal rules
-  processedText = processedText.replace(/([^\n])---/g, '$1\n\n---\n\n');
+  // Clean up malformed headings - fix cases where # appears with content
+  processedText = processedText.replace(/^(#{1,6})\s*(.+)$/gm, (match, hashes, content) => {
+    // Remove any remaining # symbols from content
+    const cleanContent = content.replace(/^#+\s*/, '').trim();
+    return `${hashes} ${cleanContent}`;
+  });
+
+  // Fix malformed headings where # appears within content
+  processedText = processedText.replace(/^([^#\n]*)(#{1,6})\s*(.+)$/gm, (match, prefix, hashes, content) => {
+    if (prefix.trim()) {
+      return match; // Keep as is if there's content before #
+    }
+    const cleanContent = content.replace(/^#+\s*/, '').trim();
+    return `${hashes} ${cleanContent}`;
+  });
+
+  // Clean up any stray # symbols at the beginning of headings in HTML
+  processedText = processedText.replace(/<h([1-6])([^>]*)>\s*#+\s*/gi, '<h$1$2>');
+  processedText = processedText.replace(/\s*#+\s*<\/h[1-6]>/gi, '</h$1>');
 
   // Fix bullet point spacing
-  processedText = processedText.replace(/^(\s*)\*\s+/gm, '$1* ');
+  processedText = processedText.replace(/^(\s*[*\-+])\s*/gm, '$1 ');
 
-  // Add space after bullet points if missing
-  processedText = processedText.replace(/^(\s*[*]|\s*-|\s*[+])([^\s])/gm, '$1 $2');
+  // Clean up list items that might have extra symbols
+  processedText = processedText.replace(/^(\s*[*\-+])\s*([*\-+]+)\s*/gm, '$1 ');
 
-  // Fix heading spacing
-  processedText = processedText.replace(/^(#+)(?! )/gm, '$1 ');
+  // Ensure proper spacing around horizontal rules
+  processedText = processedText.replace(/([^\n])\s*---\s*/g, '$1\n\n---\n\n');
 
   // Fix blockquote spacing
-  processedText = processedText.replace(/^(\s*>)(?! )/gm, '$1 ');
+  processedText = processedText.replace(/^(\s*>)\s*/gm, '$1 ');
 
-  // Ensure double line breaks between paragraphs for better readability
-  processedText = processedText.replace(/\n([^-*+\s\n])/g, '\n\n$1');
+  // Clean up any double spaces
+  processedText = processedText.replace(/  +/g, ' ');
+
+  // Ensure proper paragraph breaks
+  processedText = processedText.replace(/\n([A-Z][^#*\->\n])/g, '\n\n$1');
+
+  // Final cleanup: remove any trailing spaces on lines
+  processedText = processedText.replace(/[ \t]+$/gm, '');
 
   return processedText.trim();
 };
