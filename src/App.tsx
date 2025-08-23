@@ -1202,10 +1202,14 @@ const BotMessage: React.FC<{
           <RelatedContentCarousel items={response.related_content} />
         )}
 
-        {/* Main Answer with Typewriter Effect */}
+        {/* Main Answer with Fast Typewriter Effect */}
         {message.text && (
-          <div className="p-4 rounded-xl prose text-gray-800 chat-message-content">
-            {isWelcomeMessage || isOldMessage ? (
+          <div
+            className="p-4 rounded-xl prose text-gray-800 chat-message-content cursor-pointer"
+            onClick={handleClickToComplete}
+            title="Click to show full response instantly"
+          >
+            {isWelcomeMessage || isOldMessage || skipTypewriter ? (
               <div dangerouslySetInnerHTML={{ __html: processedHTML }} />
             ) : (
               <TypewriterContent
