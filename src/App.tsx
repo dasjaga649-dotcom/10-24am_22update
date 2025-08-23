@@ -1240,8 +1240,9 @@ const BotMessage: React.FC<{
     cleanedHTML = cleanedHTML.replace(/>\s+</g, '><');
     cleanedHTML = cleanedHTML.replace(/\s{2,}/g, ' ');
 
-    // Clean up any stray markdown symbols that weren't processed
-    cleanedHTML = cleanedHTML.replace(/([^`<])\*{1,2}([^*`<>]+)\*{1,2}([^`>])/g, '$1<strong>$2</strong>$3');
+    // Clean up any stray markdown symbols that weren't processed (more selective)
+    cleanedHTML = cleanedHTML.replace(/([^`<])\*\*([^*`<>]+)\*\*([^`>])/g, '$1<strong>$2</strong>$3'); // Only double asterisks
+    cleanedHTML = cleanedHTML.replace(/([^`<*])\*([^*`<>\s][^*<>]*[^*`<>\s])\*([^`>*])/g, '$1<em>$2</em>$3'); // Single asterisks for emphasis
 
     // Remove any leading/trailing whitespace in tags
     cleanedHTML = cleanedHTML.replace(/>\s+([^<\s])/g, '>$1');

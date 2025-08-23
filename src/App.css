@@ -52,13 +52,39 @@
         .prose {
           line-height: 1.2; /* Very tight line spacing */
           font-size: 0.875rem;
+          font-weight: normal; /* Ensure normal font weight */
           /* Smaller text for chat */
+        }
+
+        /* Ensure all prose content has normal font weight by default */
+        .prose * {
+          font-weight: normal;
+        }
+
+        /* Override any inherited bold styling from parent elements */
+        .prose p,
+        .prose div,
+        .prose span:not(.font-bold):not(.font-semibold):not(.font-medium),
+        .prose li,
+        .prose td,
+        .prose blockquote {
+          font-weight: 400 !important;
         }
 
         /* Enhanced chat message content formatting */
         .chat-message-content {
           white-space: pre-line;
           line-height: 1.2; /* Very tight line spacing */
+          font-weight: normal; /* Ensure normal weight for all content */
+        }
+
+        /* Explicitly set normal font weight for all text content */
+        .chat-message-content p,
+        .chat-message-content div,
+        .chat-message-content span,
+        .chat-message-content li,
+        .chat-message-content td {
+          font-weight: normal;
         }
 
         /* Clean up any remaining markdown symbols in rendered content */
@@ -95,12 +121,43 @@
         }
 
         /* Specific heading styles */
-        .chat-message-content h1 { font-size: 1.1rem; }
-        .chat-message-content h2 { font-size: 1.05rem; }
-        .chat-message-content h3 { font-size: 1rem; }
-        .chat-message-content h4 { font-size: 0.95rem; }
-        .chat-message-content h5 { font-size: 0.9rem; }
-        .chat-message-content h6 { font-size: 0.85rem; }
+        .chat-message-content h1 {
+          font-size: 1.1rem;
+          font-weight: 600; /* Headings should be bold */
+        }
+        .chat-message-content h2 {
+          font-size: 1.05rem;
+          font-weight: 600;
+        }
+        .chat-message-content h3 {
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        .chat-message-content h4 {
+          font-size: 0.95rem;
+          font-weight: 600;
+        }
+        .chat-message-content h5 {
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+        .chat-message-content h6 {
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        /* Only these elements should be bold */
+        .chat-message-content strong,
+        .chat-message-content b {
+          font-weight: 600;
+        }
+
+        /* Ensure em/italic elements are not bold */
+        .chat-message-content em,
+        .chat-message-content i {
+          font-weight: normal;
+          font-style: italic;
+        }
 
         /* Code and pre blocks */
         .chat-message-content pre,
