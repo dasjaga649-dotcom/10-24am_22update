@@ -45,7 +45,7 @@
           margin-left: auto;
           margin-right: 0;
           max-width: 80%;
-          line-height: 1.3; /* Tighter line height for user messages */
+          line-height: 1.2; /* Very tight line height for consistency */
         }
 
         /* Prose styles for markdown content */
@@ -58,7 +58,27 @@
         /* Enhanced chat message content formatting */
         .chat-message-content {
           white-space: pre-line;
-          line-height: 1.3; /* Consistent tight line spacing */
+          line-height: 1.2; /* Very tight line spacing */
+        }
+
+        /* Clean up any remaining markdown symbols in rendered content */
+        .chat-message-content h1:before,
+        .chat-message-content h2:before,
+        .chat-message-content h3:before,
+        .chat-message-content h4:before,
+        .chat-message-content h5:before,
+        .chat-message-content h6:before {
+          content: '';
+        }
+
+        /* Ensure no extra symbols appear in headings */
+        .chat-message-content h1 > *:first-child,
+        .chat-message-content h2 > *:first-child,
+        .chat-message-content h3 > *:first-child,
+        .chat-message-content h4 > *:first-child,
+        .chat-message-content h5 > *:first-child,
+        .chat-message-content h6 > *:first-child {
+          display: none;
         }
 
         /* Heading spacing in chat content */
