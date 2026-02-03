@@ -28,11 +28,11 @@
         /* Main chat history container */
         .chat-history {
           flex-grow: 1;
-          padding-top: 2rem;
+          padding-top: 0.5rem; /* Further reduced top padding */
           padding-bottom: 0;
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 0.5rem; /* Further reduced gap between messages */
         }
 
         /* Styling for the user's chat bubbles */
@@ -45,23 +45,158 @@
           margin-left: auto;
           margin-right: 0;
           max-width: 80%;
+          line-height: 1.2; /* Very tight line height for consistency */
         }
 
         /* Prose styles for markdown content */
         .prose {
-          line-height: 1.6;
+          line-height: 1.2; /* Very tight line spacing */
           font-size: 0.875rem;
+          font-weight: normal; /* Ensure normal font weight */
           /* Smaller text for chat */
+        }
+
+        /* Ensure all prose content has normal font weight by default */
+        .prose * {
+          font-weight: normal;
+        }
+
+        /* Override any inherited bold styling from parent elements */
+        .prose p,
+        .prose div,
+        .prose span:not(.font-bold):not(.font-semibold):not(.font-medium),
+        .prose li,
+        .prose td,
+        .prose blockquote,
+        .prose text {
+          font-weight: 400 !important;
+        }
+
+        /* Global reset for all chat content to ensure normal weight */
+        .chat-message-content,
+        .chat-message-content p,
+        .chat-message-content div,
+        .chat-message-content span,
+        .chat-message-content li,
+        .chat-message-content td,
+        .chat-message-content blockquote {
+          font-weight: normal;
         }
 
         /* Enhanced chat message content formatting */
         .chat-message-content {
           white-space: pre-line;
+          line-height: 1.2; /* Very tight line spacing */
+          font-weight: normal; /* Ensure normal weight for all content */
+        }
+
+        /* Explicitly set normal font weight for all text content */
+        .chat-message-content p,
+        .chat-message-content div,
+        .chat-message-content span,
+        .chat-message-content li,
+        .chat-message-content td,
+        .chat-message-content blockquote,
+        .chat-message-content ul,
+        .chat-message-content ol {
+          font-weight: 400 !important; /* Force normal weight */
+        }
+
+        /* Reset any bold styling that might be inherited */
+        .chat-message-content {
+          font-weight: 400;
+        }
+
+        .chat-message-content * {
+          font-weight: inherit;
+        }
+
+        /* Clean up any remaining markdown symbols in rendered content */
+        .chat-message-content h1:before,
+        .chat-message-content h2:before,
+        .chat-message-content h3:before,
+        .chat-message-content h4:before,
+        .chat-message-content h5:before,
+        .chat-message-content h6:before {
+          content: '';
+        }
+
+        /* Ensure no extra symbols appear in headings */
+        .chat-message-content h1 > *:first-child,
+        .chat-message-content h2 > *:first-child,
+        .chat-message-content h3 > *:first-child,
+        .chat-message-content h4 > *:first-child,
+        .chat-message-content h5 > *:first-child,
+        .chat-message-content h6 > *:first-child {
+          display: none;
+        }
+
+        /* Heading spacing in chat content */
+        .chat-message-content h1,
+        .chat-message-content h2,
+        .chat-message-content h3,
+        .chat-message-content h4,
+        .chat-message-content h5,
+        .chat-message-content h6 {
+          margin-top: 0.25rem;
+          margin-bottom: 0.125rem;
+          line-height: 1.1;
+          font-weight: 600;
+        }
+
+        /* Specific heading styles */
+        .chat-message-content h1 {
+          font-size: 1.1rem;
+          font-weight: 600; /* Headings should be bold */
+        }
+        .chat-message-content h2 {
+          font-size: 1.05rem;
+          font-weight: 600;
+        }
+        .chat-message-content h3 {
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        .chat-message-content h4 {
+          font-size: 0.95rem;
+          font-weight: 600;
+        }
+        .chat-message-content h5 {
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+        .chat-message-content h6 {
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        /* Only these elements should be bold */
+        .chat-message-content strong,
+        .chat-message-content b {
+          font-weight: 600;
+        }
+
+        /* Ensure em/italic elements are not bold */
+        .chat-message-content em,
+        .chat-message-content i {
+          font-weight: normal;
+          font-style: italic;
+        }
+
+        /* Code and pre blocks */
+        .chat-message-content pre,
+        .chat-message-content code {
+          line-height: 1.1;
+          margin: 0.125rem 0;
+          padding: 0.25rem;
+          background-color: #f8f9fa;
+          border-radius: 0.25rem;
+          font-size: 0.8rem;
         }
 
         .chat-message-content p {
-          margin-bottom: 1rem;
-          line-height: 1.7;
+          margin-bottom: 0.125rem; /* 2px spacing between paragraphs */
+          line-height: 1.2; /* Even tighter line spacing */
         }
 
         .chat-message-content p:last-child {
@@ -71,13 +206,13 @@
         /* Better spacing for lists */
         .chat-message-content ul,
         .chat-message-content ol {
-          margin: 1rem 0;
+          margin: 0.125rem 0; /* 2px spacing around lists */
           padding-left: 1.5rem;
         }
 
         .chat-message-content li {
-          margin-bottom: 0.75rem;
-          line-height: 1.6;
+          margin-bottom: 0.125rem; /* 2px spacing between list items */
+          line-height: 1.3;
         }
 
         .chat-message-content li:last-child {
@@ -614,7 +749,7 @@
           height: 3px;
           background: white;
           border-radius: 50%;
-          animation: searchingDots 1.4s infinite ease-in-out;
+          /* No animation */
         }
 
         .searching-animation .dot:nth-child(1) {
@@ -1062,6 +1197,199 @@
 
         /* Import search transition animations */
         @import url('./search-animations.css');
+
+        /* Enhanced Typewriter Effect Styles */
+        .typewriter-content {
+          position: relative;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+        }
+
+        .typewriter-content::after {
+          content: '|';
+          color: #4f46e5;
+          animation: typewriter-blink 1s infinite;
+          font-weight: bold;
+          display: inline-block;
+          margin-left: 1px;
+        }
+
+        /* Visual feedback for clickable typewriter area */
+        .chat-message-content.cursor-pointer:not(.typewriter-complete) {
+          position: relative;
+          transition: background-color 0.2s ease;
+        }
+
+        .chat-message-content.cursor-pointer:not(.typewriter-complete):hover {
+          background-color: rgba(79, 70, 229, 0.02);
+        }
+
+        .chat-message-content.cursor-pointer:not(.typewriter-complete)::before {
+          content: '👆 Click to show full response';
+          position: absolute;
+          top: -25px;
+          right: 0;
+          font-size: 11px;
+          color: #6b7280;
+          background: rgba(255, 255, 255, 0.9);
+          padding: 2px 6px;
+          border-radius: 4px;
+          opacity: 0;
+          animation: fadeInHint 2s ease-out 1s forwards;
+        }
+
+        @keyframes fadeInHint {
+          0% { opacity: 0; transform: translateY(5px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typewriter-blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+
+        /* Hide cursor when typewriter is complete */
+        .typewriter-complete::after {
+          display: none;
+        }
+
+        /* Smooth fade-in animation for images in typewriter content */
+        .typewriter-content img {
+          animation: imageStreamIn 0.5s ease-out forwards;
+          opacity: 0;
+          transform: scale(0.95);
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        .typewriter-content img:hover {
+          transform: scale(1.02);
+          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes imageStreamIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        /* Images in regular prose (non-typewriter) */
+        .prose img:not(.typewriter-content img) {
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        .prose img:not(.typewriter-content img):hover {
+          transform: scale(1.02);
+          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Enhanced fade-in animation for additional content */
+        .additional-content {
+          animation: fadeInUp 0.4s ease-out forwards;
+          opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Smooth character streaming effect */
+        .typewriter-content * {
+          display: inline;
+        }
+
+        /* Ensure proper spacing during streaming */
+        .typewriter-content p,
+        .typewriter-content div,
+        .typewriter-content h1,
+        .typewriter-content h2,
+        .typewriter-content h3,
+        .typewriter-content h4,
+        .typewriter-content h5,
+        .typewriter-content h6 {
+          display: block;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Enhanced table styling for smooth display */
+        .prose table,
+        .chat-message-content table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 0.5rem 0;
+          border-radius: 0.5rem;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          line-height: 1.3;
+        }
+
+        .prose th,
+        .prose td,
+        .chat-message-content th,
+        .chat-message-content td {
+          padding: 0.5rem 0.75rem;
+          text-align: left;
+          border-bottom: 1px solid #e5e7eb;
+          line-height: 1.3;
+        }
+
+        /* Ensure table cells have normal font weight */
+        .prose td,
+        .chat-message-content td {
+          font-weight: 400 !important;
+        }
+
+        .prose th,
+        .chat-message-content th {
+          background-color: #f8fafc;
+          font-weight: 600;
+          color: #374151;
+          font-size: 0.8rem;
+        }
+
+        .prose td,
+        .chat-message-content td {
+          color: #4b5563;
+          font-size: 0.8rem;
+        }
+
+        .prose tr:last-child td,
+        .chat-message-content tr:last-child td {
+          border-bottom: none;
+        }
+
+        /* Tables during streaming */
+        .typewriter-content table {
+          animation: tableStreamIn 0.5s ease-out forwards;
+          opacity: 1;
+        }
+
+        @keyframes tableStreamIn {
+          from {
+            opacity: 0.7;
+            transform: scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
 
         /* Message Action Buttons */
         .message-actions {

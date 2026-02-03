@@ -2,9 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import './App.css';
 
-// Configure marked to return strings synchronously
+// Configure marked to return strings synchronously and handle markdown properly
 marked.setOptions({
-  async: false
+  async: false,
+  breaks: true, // Enable line breaks
+  gfm: true, // Enable GitHub flavored markdown
+  smartLists: true, // Enable smarter list behavior
+  smartypants: false, // Disable smart quotes that can cause issues
+  silent: true, // Don't throw on errors, return original text
 });
 
 interface Message {
@@ -216,7 +221,7 @@ function App() {
       category: 'Technology'
     },
     {
-      icon: '📞',
+      icon: '����',
       title: 'Contact',
       description: 'Give me your contact details.',
       category: 'Contact'
@@ -227,17 +232,17 @@ function App() {
     const messageText = query || inputValue.trim();
     if (!messageText || isTransitioning) return;
 
-    // Start the search transition animation
+    // Start the search transition (no animation)
     setIsTransitioning(true);
     setSearchInitiated(true);
     setScrollTriggered(false);
 
-    // Wait for animations to complete before switching to chat page
+    // Switch to chat page immediately (no animation delay)
     setTimeout(() => {
       setCurrentPage('chat');
       setIsSearching(true);
       setIsTransitioning(false);
-    }, 800); // 0.8s total animation duration
+    }, 0); // No animation duration
 
     const userMessage: Message = {
       id: Date.now(),
@@ -433,7 +438,7 @@ function App() {
       {/* Chat History Panel */}
       <div id="chat-history" className="chat-history-container">
         {messages.map((message) => (
-          <div key={message.id}>
+          <div key={message.id} className="mb-1">
             {message.isUser ? (
               <UserMessage text={message.text} />
             ) : (
@@ -1108,47 +1113,204 @@ const MessageActions: React.FC<{
   );
 };
 
+// Fast Typewriter component with word-based streaming
+const TypewriterContent: React.FC<{
+  content: string;
+  speed?: number;
+  onComplete?: () => void;
+}> = ({ content, speed = 20, onComplete }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    if (!content || content.trim() === '') {
+      setIsComplete(true);
+      onComplete?.();
+      return;
+    }
+
+    // Reset state when content changes
+    setDisplayedContent('');
+    setIsComplete(false);
+
+    // Improved content streaming with multiple words per update
+    const words = content.split(/(\s+)/).filter(word => word.length > 0);
+    let currentWordIndex = 0;
+    let timeoutId: NodeJS.Timeout;
+
+    const streamContent = () => {
+      if (currentWordIndex >= words.length) {
+        // Double-check completion and ensure all content is displayed
+        setDisplayedContent(content);
+        setIsComplete(true);
+        setTimeout(() => onComplete?.(), 50); // Small delay for DOM update
+        return;
+      }
+
+      // Stream multiple words at once for faster, smoother display
+      const wordsToAdd = Math.min(4, words.length - currentWordIndex); // Add 4 words at a time
+
+      // Build complete content up to current position
+      const allWordsUpToHere = words.slice(0, currentWordIndex + wordsToAdd);
+      const newContent = allWordsUpToHere.join('');
+      setDisplayedContent(newContent);
+
+      currentWordIndex += wordsToAdd;
+
+      // Check if we're near the end and complete if needed
+      if (currentWordIndex >= words.length * 0.95) {
+        setDisplayedContent(content);
+        setIsComplete(true);
+        setTimeout(() => onComplete?.(), 50);
+        return;
+      }
+
+      // Continue streaming
+      timeoutId = setTimeout(streamContent, speed);
+    };
+
+    // Start streaming
+    streamContent();
+
+    // Safety timeout to ensure content completes
+    const safetyTimeout = setTimeout(() => {
+      setDisplayedContent(content);
+      setIsComplete(true);
+      onComplete?.();
+    }, 5000); // 5 second fallback
+
+    // Cleanup function
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      clearTimeout(safetyTimeout);
+    };
+  }, [content, speed, onComplete]);
+
+  return (
+    <div
+      className={`typewriter-content ${isComplete ? 'typewriter-complete' : ''}`}
+      dangerouslySetInnerHTML={{ __html: displayedContent }}
+    />
+  );
+};
+
 const BotMessage: React.FC<{
   message: Message;
   onSuggestionClick: (suggestion: string) => void;
 }> = ({ message, onSuggestionClick }) => {
   const response = message.response;
   const isWelcomeMessage = message.id === 1 && message.text === "Hello! I am your AI partner, Husqy. How can I help you today?";
+  // For existing messages (more than 1 second old), skip typewriter effect
+  const isOldMessage = Date.now() - message.timestamp.getTime() > 1000;
+  const [showAdditionalContent, setShowAdditionalContent] = useState(isWelcomeMessage || isOldMessage);
+  const [skipTypewriter, setSkipTypewriter] = useState(false);
+
+  const handleTypewriterComplete = () => {
+    // Immediately show additional content for faster UX
+    setShowAdditionalContent(true);
+  };
+
+  const handleClickToComplete = () => {
+    setSkipTypewriter(true);
+    setShowAdditionalContent(true);
+  };
+
+  // Helper function to clean up HTML output
+  const cleanupHTML = (html: string): string => {
+    let cleanedHTML = html;
+
+    // Remove any remaining # symbols from heading content (multiple patterns)
+    cleanedHTML = cleanedHTML.replace(/<h([1-6])([^>]*)>\s*#+\s*/gi, '<h$1$2>');
+    cleanedHTML = cleanedHTML.replace(/<h([1-6])([^>]*)>([^<]*?)#+([^<]*?)<\/h[1-6]>/gi, '<h$1$2>$3$4</h$1>');
+    cleanedHTML = cleanedHTML.replace(/\s*#+\s*<\/h([1-6])>/gi, '</h$1>');
+
+    // Clean up any malformed symbols in content
+    cleanedHTML = cleanedHTML.replace(/>\s*#+\s*([^<]+)</g, '>$1<');
+    cleanedHTML = cleanedHTML.replace(/>\s*\*+\s*([^<]+)</g, '>$1<');
+
+    // Fix text content that still contains markdown symbols
+    cleanedHTML = cleanedHTML.replace(/([^<>]*?)#+\s*([^<>]*?)(?=<|$)/g, '$1$2');
+
+    // Clean up stray symbols at the beginning of text content
+    cleanedHTML = cleanedHTML.replace(/>(\s*[#*\-+]+\s*)([^<]+)</g, '>$2<');
+
+    // Fix any double spaces in content
+    cleanedHTML = cleanedHTML.replace(/>\s+</g, '><');
+    cleanedHTML = cleanedHTML.replace(/\s{2,}/g, ' ');
+
+    // Clean up any stray markdown symbols that weren't processed (more selective)
+    cleanedHTML = cleanedHTML.replace(/([^`<])\*\*([^*`<>]+)\*\*([^`>])/g, '$1<strong>$2</strong>$3'); // Only double asterisks
+    cleanedHTML = cleanedHTML.replace(/([^`<*])\*([^*`<>\s][^*<>]*[^*`<>\s])\*([^`>*])/g, '$1<em>$2</em>$3'); // Single asterisks for emphasis
+
+    // Remove any leading/trailing whitespace in tags
+    cleanedHTML = cleanedHTML.replace(/>\s+([^<\s])/g, '>$1');
+    cleanedHTML = cleanedHTML.replace(/([^>\s])\s+</g, '$1<');
+
+    // Ensure proper paragraph structure
+    cleanedHTML = cleanedHTML.replace(/<p>\s*<\/p>/g, ''); // Remove empty paragraphs
+
+    // Fix any nested bold/strong tags
+    cleanedHTML = cleanedHTML.replace(/<strong>\s*<strong>/g, '<strong>');
+    cleanedHTML = cleanedHTML.replace(/<\/strong>\s*<\/strong>/g, '</strong>');
+
+    return cleanedHTML.trim();
+  };
+
+  const processedHTML = message.text ?
+    cleanupHTML(marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string)
+    : '';
 
   return (
     <div className="flex items-start justify-center">
       <div className="max-w-3xl w-full">
 
-        {/* Related Content Card Carousel */}
+        {/* Related Content Card Carousel - Show FIRST for all messages */}
         {response?.related_content && response.related_content.length > 0 && (
           <RelatedContentCarousel items={response.related_content} />
         )}
 
-        {/* Main Answer */}
+        {/* Main Answer with Fast Typewriter Effect */}
         {message.text && (
-          <div className="p-4 rounded-xl prose text-gray-800 chat-message-content">
-            <div dangerouslySetInnerHTML={{
-              __html: marked(renderIcons(renderTables(preprocessResponse(message.text), response?.tables || []))) as string
-            }} />
+          <div
+            className={`p-4 rounded-xl prose text-gray-800 chat-message-content ${!isWelcomeMessage && !isOldMessage && !skipTypewriter ? 'cursor-pointer' : ''}`}
+            onClick={!isWelcomeMessage && !isOldMessage && !skipTypewriter ? handleClickToComplete : undefined}
+            title={!isWelcomeMessage && !isOldMessage && !skipTypewriter ? "Click to show full response instantly" : undefined}
+          >
+            {isWelcomeMessage || isOldMessage || skipTypewriter ? (
+              <div dangerouslySetInnerHTML={{ __html: processedHTML }} />
+            ) : (
+              <TypewriterContent
+                content={processedHTML}
+                speed={8}
+                onComplete={handleTypewriterComplete}
+              />
+            )}
           </div>
         )}
 
-        {/* Action Buttons - Hide for welcome message */}
-        {message.text && !isWelcomeMessage && (
-          <MessageActions message={message} />
-        )}
+        {/* Additional Content - Show after typewriter completes */}
+        {showAdditionalContent && (
+          <div className={!isOldMessage && !isWelcomeMessage ? 'additional-content' : ''}>
+            {/* Action Buttons - Hide for welcome message */}
+            {message.text && !isWelcomeMessage && (
+              <MessageActions message={message} />
+            )}
 
-        {/* File Links */}
-        {response?.file_links && response.file_links.length > 0 && (
-          <FileLinksSection files={response.file_links} />
-        )}
+            {/* File Links */}
+            {response?.file_links && response.file_links.length > 0 && (
+              <FileLinksSection files={response.file_links} />
+            )}
 
-        {/* Suggested Questions */}
-        {response?.recommendations && response.recommendations.length > 0 && (
-          <SuggestionsSection 
-            suggestions={response.recommendations} 
-            onSuggestionClick={onSuggestionClick} 
-          />
+            {/* Suggested Questions */}
+            {response?.recommendations && response.recommendations.length > 0 && (
+              <SuggestionsSection
+                suggestions={response.recommendations}
+                onSuggestionClick={onSuggestionClick}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
@@ -1159,10 +1321,13 @@ const LoadingMessage: React.FC = () => {
   return (
     <div className="flex justify-start">
       <div className="rounded-xl rounded-bl-none p-4 shadow-md max-w-sm bg-white">
-        <div className="flex space-x-2 animate-pulse">
-          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+        <div className="flex items-center space-x-2">
+          <div className="flex space-x-1">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+          </div>
+          <span className="text-xs text-gray-500 ml-2">Husqy is typing...</span>
         </div>
       </div>
     </div>
@@ -1338,27 +1503,60 @@ const renderIcons = (text: string): string => {
 const preprocessResponse = (text: string): string => {
   let processedText = text.replace(/&nbsp;|\u00A0|\t/g, ' ');
 
+  // Clean up extra spaces and normalize whitespace
+  processedText = processedText.replace(/\s+/g, ' ').trim();
+
   // Handle line breaks - convert \n to proper spacing
   processedText = processedText.replace(/\\n/g, '\n');
-  processedText = processedText.replace(/\n\n+/g, '\n\n'); // Normalize multiple line breaks
+  processedText = processedText.replace(/\n\s*\n\s*\n+/g, '\n\n'); // Normalize multiple line breaks
 
-  // Ensure proper spacing around horizontal rules
-  processedText = processedText.replace(/([^\n])---/g, '$1\n\n---\n\n');
+  // Clean up malformed headings - fix cases where # appears with content
+  processedText = processedText.replace(/^(#{1,6})\s*(.+)$/gm, (match, hashes, content) => {
+    // Remove any remaining # symbols from content
+    const cleanContent = content.replace(/^#+\s*/, '').trim();
+    return `${hashes} ${cleanContent}`;
+  });
+
+  // Fix malformed headings where # appears within content
+  processedText = processedText.replace(/^([^#\n]*)(#{1,6})\s*(.+)$/gm, (match, prefix, hashes, content) => {
+    if (prefix.trim()) {
+      return match; // Keep as is if there's content before #
+    }
+    const cleanContent = content.replace(/^#+\s*/, '').trim();
+    return `${hashes} ${cleanContent}`;
+  });
+
+  // Clean up any stray # symbols at the beginning of headings in HTML
+  processedText = processedText.replace(/<h([1-6])([^>]*)>\s*#+\s*/gi, '<h$1$2>');
+  processedText = processedText.replace(/\s*#+\s*<\/h[1-6]>/gi, '</h$1>');
 
   // Fix bullet point spacing
-  processedText = processedText.replace(/^(\s*)\*\s+/gm, '$1* ');
+  processedText = processedText.replace(/^(\s*[*\-+])\s*/gm, '$1 ');
 
-  // Add space after bullet points if missing
-  processedText = processedText.replace(/^(\s*[*]|\s*-|\s*[+])([^\s])/gm, '$1 $2');
+  // Clean up list items that might have extra symbols
+  processedText = processedText.replace(/^(\s*[*\-+])\s*([*\-+]+)\s*/gm, '$1 ');
 
-  // Fix heading spacing
-  processedText = processedText.replace(/^(#+)(?! )/gm, '$1 ');
+  // Ensure proper spacing around horizontal rules
+  processedText = processedText.replace(/([^\n])\s*---\s*/g, '$1\n\n---\n\n');
 
   // Fix blockquote spacing
-  processedText = processedText.replace(/^(\s*>)(?! )/gm, '$1 ');
+  processedText = processedText.replace(/^(\s*>)\s*/gm, '$1 ');
 
-  // Ensure double line breaks between paragraphs for better readability
-  processedText = processedText.replace(/\n([^-*+\s\n])/g, '\n\n$1');
+  // Clean up any double spaces
+  processedText = processedText.replace(/  +/g, ' ');
+
+  // Ensure proper paragraph breaks
+  processedText = processedText.replace(/\n([A-Z][^#*\->\n])/g, '\n\n$1');
+
+  // Remove any extra bold formatting that might cause issues
+  processedText = processedText.replace(/\*\*\*+/g, '**'); // Normalize multiple asterisks
+  processedText = processedText.replace(/\*\*\s*\*\*/g, ''); // Remove empty bold tags
+
+  // Clean up any malformed bold/italic combinations
+  processedText = processedText.replace(/\*+\s*\*+/g, '**'); // Fix broken asterisks
+
+  // Final cleanup: remove any trailing spaces on lines
+  processedText = processedText.replace(/[ \t]+$/gm, '');
 
   return processedText.trim();
 };
